@@ -32,8 +32,8 @@ jobs:
             cd MERN_BACKEND
             git pull origin main
 
-            echo "MONGODB_URI=${{ secrets.MONGO_URI }}" > .env
-            echo "PORT=4000" >> .env
+            echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env
+            echo "PORT=5000" >> .env
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
             echo "NODE_ENV=production" >> .env
 
