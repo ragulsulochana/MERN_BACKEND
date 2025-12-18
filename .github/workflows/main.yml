@@ -1,0 +1,46 @@
+name: Deploy Node App to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            set -e
+
+            cd /home/ubuntu
+
+            if [ ! -d "MERN_BACKEND" ]; then
+              git clone https://github.com/ragulsulochana/MERN_BACKEND.git
+            fi
+
+            cd MERN_BACKEND
+            git pull origin main
+
+            cd backend
+
+            echo "MONGODB_URI=${{ secrets.MONGO_URI }}" > .env
+            echo "PORT=4000" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "NODE_ENV=production" >> .env
+
+            npm install
+
+            pm2 delete student-api || true
+            pm2 start server.js --name student-api
+            pm2 save
